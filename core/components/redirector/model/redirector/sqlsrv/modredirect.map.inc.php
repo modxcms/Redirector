@@ -9,6 +9,7 @@ $xpdo_meta_map['modRedirect']= array (
   array (
     'pattern' => '',
     'target' => '',
+    'context_key' => '',
     'active' => 1,
   ),
   'fieldMeta' => 
@@ -31,6 +32,15 @@ $xpdo_meta_map['modRedirect']= array (
       'default' => '',
       'index' => 'index',
     ),
+    'context_key' =>
+    array (
+      'dbtype' => 'nvarchar',
+      'precision' => '255',
+      'phptype' => 'string',
+      'null' => true,
+      'default' => null,
+      'index' => 'index',
+    ),
     'active' => 
     array (
       'dbtype' => 'bit',
@@ -38,6 +48,31 @@ $xpdo_meta_map['modRedirect']= array (
       'null' => false,
       'default' => 1,
       'index' => 'index',
+    ),
+  ),
+  'indexes' =>
+  array(
+    'pattern_context' =>
+    array (
+      'alias' => 'pattern_context',
+      'primary' => true,
+      'unique' => true,
+      'type' => 'BTREE',
+      'columns' =>
+      array (
+        'pattern' =>
+        array (
+          'length' => '100',
+          'collation' => 'A',
+          'null' => false,
+        ),
+        'context_key' =>
+        array (
+          'length' => '100',
+          'collation' => 'A',
+          'null' => false,
+        ),
+      ),
     ),
   ),
 );

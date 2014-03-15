@@ -14,7 +14,7 @@ set_time_limit(0);
 /* define package names */
 define('PKG_NAME','Redirector');
 define('PKG_NAME_LOWER','redirector');
-define('PKG_VERSION','1.0.3');
+define('PKG_VERSION','2.0.0');
 define('PKG_RELEASE','pl');
 
 /* define build paths */
@@ -50,7 +50,7 @@ $builder->createPackage(PKG_NAME_LOWER,PKG_VERSION,PKG_RELEASE);
 $builder->registerNamespace(PKG_NAME_LOWER,false,true,'{core_path}components/'.PKG_NAME_LOWER.'/');
 
 /* add plugin */
-$modx->log(modX::LOG_LEVEL_INFO,'Packaging in plugin...');
+$modx->log(modX::LOG_LEVEL_INFO,'Packaging in Redirector plugin...');
 $plugin= $modx->newObject('modPlugin');
 $plugin->fromArray(array(
     'id' => 1,
@@ -58,15 +58,28 @@ $plugin->fromArray(array(
     'description' => 'Handles site redirects.',
     'plugincode' => getSnippetContent($sources['elements'].'plugins/plugin.redirector.php'),
 ),'',true,true);
-    $events = array();
-    $events['OnPageNotFound']= $modx->newObject('modPluginEvent');
-    $events['OnPageNotFound']->fromArray(array(
-        'event' => 'OnPageNotFound',
-        'priority' => 0,
-        'propertyset' => 0,
-    ),'',true,true);
-    $plugin->addMany($events);
-    unset($events);
+
+$events = array();
+$events['OnPageNotFound']= $modx->newObject('modPluginEvent');
+$events['OnPageNotFound']->fromArray(array(
+    'event' => 'OnPageNotFound',
+    'priority' => 0,
+    'propertyset' => 0,
+),'',true,true);
+$events['OnDocFormRender'] = $modx->newObject('modPluginEvent');
+$events['OnDocFormRender']->fromArray(array(
+    'event' => 'OnDocFormRender',
+    'priority' => 0,
+    'propertyset' => 0,
+),'',true,true);
+$events['OnDocFormSave'] = $modx->newObject('modPluginEvent');
+$events['OnDocFormSave']->fromArray(array(
+    'event' => 'OnDocFormSave',
+    'priority' => 0,
+    'propertyset' => 0,
+),'',true,true);
+$plugin->addMany($events);
+unset($events);
 
 $attributes= array(
     xPDOTransport::UNIQUE_KEY => 'name',
@@ -94,6 +107,21 @@ $vehicle->resolve('file',array(
 ));
 $builder->putVehicle($vehicle);
 
+/* settings */
+$settings = include_once $sources['data'].'transport.settings.php';
+$attributes= array(
+    xPDOTransport::UNIQUE_KEY => 'key',
+    xPDOTransport::PRESERVE_KEYS => true,
+    xPDOTransport::UPDATE_OBJECT => false,
+);
+if (!is_array($settings)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding settings failed.'); }
+foreach ($settings as $setting) {
+    $vehicle = $builder->createVehicle($setting,$attributes);
+    $builder->putVehicle($vehicle);
+}
+$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($settings).' system settings.'); flush();
+unset($settings,$setting,$attributes);
+
 /* load menu */
 $modx->log(modX::LOG_LEVEL_INFO,'Packaging in menu...');
 $menu = include $sources['data'].'transport.menu.php';
@@ -114,6 +142,9 @@ $vehicle= $builder->createVehicle($menu,array (
 $modx->log(modX::LOG_LEVEL_INFO,'Adding in PHP resolvers...');
 $vehicle->resolve('php',array(
     'source' => $sources['resolvers'] . 'resolve.tables.php',
+));
+$vehicle->resolve('php',array(
+    'source' => $sources['resolvers'] . 'resolve.dbchanges.php',
 ));
 $builder->putVehicle($vehicle);
 unset($vehicle,$menu);
@@ -142,6 +173,4 @@ $tend= $mtime;
 $totalTime= ($tend - $tstart);
 $totalTime= sprintf("%2.4f s", $totalTime);
 
-$modx->log(modX::LOG_LEVEL_INFO,"\n<br />Package Built.<br />\nExecution time: {$totalTime}\n");
-
-exit ();
+$modx->log(modX::LOG_LEVEL_INFO, "\nPackage Built.\nExecution time: {$totalTime}\n");

@@ -14,12 +14,14 @@ class Redirector {
 
         $basePath = $this->modx->getOption('redirector.core_path',$config,$this->modx->getOption('core_path').'components/redirector/');
         $assetsUrl = $this->modx->getOption('redirector.assets_url',$config,$this->modx->getOption('assets_url').'components/redirector/');
+
         $this->config = array_merge(array(
             'basePath' => $basePath,
             'corePath' => $basePath,
             'modelPath' => $basePath.'model/',
             'processorsPath' => $basePath.'processors/',
             'chunksPath' => $basePath.'elements/chunks/',
+            'templatesPath' => $basePath.'templates/',
             'jsUrl' => $assetsUrl.'js/',
             'cssUrl' => $assetsUrl.'css/',
             'assetsUrl' => $assetsUrl,
@@ -27,35 +29,6 @@ class Redirector {
         ),$config);
 
         $this->modx->addPackage('redirector',$this->config['modelPath']);
-    }
-
-    /**
-     * Initializes the class into the proper context
-     *
-     * @access public
-     * @param string $ctx
-     */
-    public function initialize($ctx = 'web') {
-        switch ($ctx) {
-            case 'mgr':
-                $this->modx->lexicon->load('redirector:default');
-
-                if (!$this->modx->loadClass('redirector.request.redirectorControllerRequest',$this->config['modelPath'],true,true)) {
-                    return 'Could not load controller request handler.';
-                }
-                $this->request = new redirectorControllerRequest($this);
-                return $this->request->handleRequest();
-            break;
-            case 'connector':
-                if (!$this->modx->loadClass('redirector.request.redirectorConnectorRequest',$this->config['modelPath'],true,true)) {
-                    echo 'Could not load connector request handler.'; die();
-                }
-                $this->request = new redirectorConnectorRequest($this);
-                return $this->request->handle();
-            break;
-            default: break;
-        }
-        return true;
     }
 
     /**

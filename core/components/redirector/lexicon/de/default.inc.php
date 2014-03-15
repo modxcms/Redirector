@@ -8,7 +8,8 @@
  */
 $_lang['redirector'] = 'Redirector';
 $_lang['redirector.active'] = 'Aktiv';
-$_lang['redirector.desc'] = 'Verwalten Sie Umleitungen für Ihre Webseite.';
+$_lang['redirector.desc'] = 'Verwalten Sie Umleitungen für Ihre Webseite. Red lines means that the pattern URL is still exists OR target URL doesn\'t exists for a resource and will not be redirected.';
+$_lang['redirector.nothing_found'] = 'No redirects found yet!';
 $_lang['redirector.description'] = 'Beschreibung';
 $_lang['redirector.redirect_err_ae'] = 'Es existiert bereits eine Umleitung mit diesem Namen.';
 $_lang['redirector.redirect_err_nf'] = 'Umleitung nicht gefunden.';
@@ -26,4 +27,5 @@ $_lang['redirector.menu_desc'] = 'Verwalten Sie Umleitungen für Ihre Webseite.'
 $_lang['redirector.pattern'] = 'Muster';
 $_lang['redirector.search...'] = 'Suche...';
 $_lang['redirector.target'] = 'Ziel';
-
+$_lang['redirector.context'] = 'Context';
+$_lang['redirector.context_desc'] = 'If context is set, redirect only affects on loaded context.';

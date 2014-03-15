@@ -10,7 +10,7 @@ $action->fromArray(array(
     'id' => 1,
     'namespace' => 'redirector',
     'parent' => 0,
-    'controller' => 'index',
+    'controller' => 'controllers/index',
     'haslayout' => true,
     'lang_topics' => 'redirector:default',
     'assets' => '',

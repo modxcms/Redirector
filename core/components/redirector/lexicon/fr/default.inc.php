@@ -7,7 +7,7 @@
  */
 $_lang['redirector'] = 'Redirector';
 $_lang['redirector.active'] = 'Actif';
-$_lang['redirector.desc'] = 'Gérez les redirections de votre site internet.';
+$_lang['redirector.desc'] = 'Gérez les redirections de votre site internet. Red lines means that the pattern URL is still exists OR target URL doesn\'t exists for a resource and will not be redirected.';
 $_lang['redirector.description'] = 'Description';
 $_lang['redirector.redirect_err_ae'] = 'Une redirection portant ce nom existe déjà.';
 $_lang['redirector.redirect_err_nf'] = 'Redirection non trouvée.';

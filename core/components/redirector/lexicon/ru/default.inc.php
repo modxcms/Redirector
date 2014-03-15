@@ -7,7 +7,8 @@
  */
 $_lang['redirector'] = 'Redirector';
 $_lang['redirector.active'] = 'Включён';
-$_lang['redirector.desc'] = 'Управление редиректами на вашем сайте.';
+$_lang['redirector.desc'] = 'Управление редиректами на вашем сайте. Red lines means that the pattern URL is still exists OR target URL doesn\'t exists for a resource and will not be redirected.';
+$_lang['redirector.nothing_found'] = 'No redirects found yet!';
 $_lang['redirector.description'] = 'Описание';
 $_lang['redirector.redirect_err_ae'] = 'Редирект с таким именем уже есть.';
 $_lang['redirector.redirect_err_nf'] = 'Редирект не найден.';
@@ -25,4 +26,5 @@ $_lang['redirector.menu_desc'] = 'Управление редиректами.';
 $_lang['redirector.pattern'] = 'Шаблон';
 $_lang['redirector.search...'] = 'Поиск...';
 $_lang['redirector.target'] = 'Цель';
-
+$_lang['redirector.context'] = 'Context';
+$_lang['redirector.context_desc'] = 'If context is set, redirect only affects on loaded context.';

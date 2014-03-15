@@ -1,5 +1,16 @@
 Changelog file for Redirector component.
 
+Redirector 2.0.0
+====================================
+- New feature: possibility to import from CSV files and raw data
+- Added visible view (red bar) when a redirect is invalid (pattern or target)
+- Redirect created on URI update. Enable/disable via System Settings (Thanks to chrischerrett)
+- Added support for regular expressions in pattern and replaces in target (preg_replace, Thanks to eprochasson)
+- Added support for context specific rules
+- Added support for contexts-as-subfolder (Thanks to jkenters)
+- UI fixes for MODX 2.2+
+- Code compatible with MODX 2.2+
+
 Redirector 1.0.3
 ====================================
 - Add sqlsrv support

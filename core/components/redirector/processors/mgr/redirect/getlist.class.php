@@ -1,27 +1,26 @@
 <?php
-/**
- * Get a list of Redirects
- *
- * @package redirector
- * @subpackage processors
- */
+
 class RedirectorGetListProcessor extends modObjectGetListProcessor {
-    /** @var modRedirect $object */
-    public $object;
     public $classKey = 'modRedirect';
     public $languageTopics = array('redirector:default');
-    public $defaultSortField = 'pattern';
+    public $objectType = 'redirector.redirect';
+    public $defaultSortField = 'pattern ASC, target';
     public $defaultSortDirection = 'ASC';
-    public $objectType = 'redirector.modredirect';
 
     public function prepareQueryBeforeCount(xPDOQuery $c) {
+
         $query = $this->getProperty('query');
-        if (!empty($query)) {
-            $c->where(array(
+        if(!empty($query)) {
+            $c->andCondition(array(
                 'pattern:LIKE' => '%'.$query.'%',
+                'OR:target:LIKE' => '%'.$query.'%',
             ));
-            $c->orCondition(array(
-                'target:LIKE' => '%'.$query.'%',
+        }
+
+        $context = $this->getProperty('context');
+        if(!empty($context)) {
+            $c->andCondition(array(
+                'context_key:LIKE' => '%'.$context.'%',
             ));
         }
 
@@ -29,20 +28,39 @@ class RedirectorGetListProcessor extends modObjectGetListProcessor {
     }
 
     public function prepareRow(xPDOObject $object) {
-        $objectArray = $object->toArray();
+        $arr = $object->toArray();
+        $arr['valid'] = true;
+        $arr['resource_id'] = '';
+        $arr['resource_ctx'] = '';
 
-        $objectArray['menu'] = array();
-        $objectArray['menu'][] = array(
-            'text' => $this->modx->lexicon('redirector.redirect_update'),
-            'handler' => 'this.updateRedirect',
-        );
-        $objectArray['menu'][] = '-';
-        $objectArray['menu'][] = array(
-            'text' => $this->modx->lexicon('redirector.redirect_remove'),
-            'handler' => 'this.removeRedirect',
-        );
+        // find out if pattern URI exists
+        $criteria = array('uri' => $object->get('pattern'));
+        if(!empty($arr['context_key'])) {
+            $criteria['context_key'] = $object->get('context_key');
+        }
 
-        return $objectArray;
+        $resource = $this->modx->getObject('modResource', $criteria);
+        if(!empty($resource) && is_object($resource)) {
+            $arr['resource_id'] = $resource->get('id');
+            $arr['resource_ctx'] = $resource->get('context_key');
+            $arr['valid'] = false;
+        }
+
+        // OR target not exists
+        if(!strpos($arr['target'], '://') && !strpos($arr['target'], '$')) {
+            $criteria = array('uri' => $object->get('target'));
+            if(!empty($arr['context_key'])) {
+                $criteria['context_key'] = $object->get('context_key');
+            }
+
+            $resource = $this->modx->getObject('modResource', $criteria);
+            if(empty($resource) || !is_object($resource)) {
+                $arr['valid'] = false;
+            }
+        }
+
+        return $arr;
     }
 }
+
 return 'RedirectorGetListProcessor';

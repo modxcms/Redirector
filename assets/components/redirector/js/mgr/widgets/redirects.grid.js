@@ -1,5 +1,6 @@
 Redi.grid.Redirects = function(config) {
     config = config || {};
+
     var cb = new Ext.ux.grid.CheckColumn({
         header: _('redirector.active')
         ,dataIndex: 'active'
@@ -7,38 +8,74 @@ Redi.grid.Redirects = function(config) {
         ,sortable: true
         ,onMouseDown: this.saveCheckbox
     });
+
     Ext.applyIf(config,{
         id: 'redirector-grid-redirects'
         ,url: Redi.config.connector_url
         ,baseParams: { action: 'mgr/redirect/getList' }
+        ,fields: ['id','pattern','target','context_key','valid','resource_id','resource_ctx','active']
         ,save_action: 'mgr/redirect/updateFromGrid'
-        ,fields: ['id','pattern','target','active','menu']
-        ,paging: true
         ,autosave: true
+        ,paging: true
         ,remoteSort: true
+
+        ,viewConfig: {
+            forceFit: true
+            ,scrollOffset: 0
+            ,autoFill: true
+            ,showPreview: true
+            ,getRowClass : function(rec){
+                var cls = ((!rec.data.valid) ? 'grid-row-invalid' : 'grid-row-valid');
+                return cls;
+            }
+            ,emptyText: _('redirector.nothing_found')
+        }
+
         ,anchor: '97%'
         ,autoExpandColumn: 'name'
         ,plugins: [cb]
         ,columns: [{
+            header: _('id')
+            ,dataIndex: 'id'
+            ,sortable: true
+            ,width: 25
+            ,hidden: true
+        },{
             header: _('redirector.pattern')
             ,dataIndex: 'pattern'
             ,sortable: true
-            ,width: 200
             ,editor: { xtype: 'textfield' }
+            ,renderer: this.renderPattern.createDelegate(this,[this],true)
         },{
             header: _('redirector.target')
             ,dataIndex: 'target'
-            ,sortable: false
-            ,width: 200
+            ,sortable: true
             ,editor: { xtype: 'textfield' }
+        },{
+            header: _('redirector.context')
+            ,dataIndex: 'context_key'
+            ,sortable: true
+            ,width: 50
+            ,editor: { xtype: 'redirector-combo-contextlist' }
         },cb]
         ,tbar: [{
+            text: _('redirector.redirect_create')
+            ,handler: { xtype: 'redirector-window-redirect-createupdate' ,blankValues: true ,update: false }
+        },'->',{
+            xtype: 'redirector-combo-contextlist'
+            ,id: 'redirector-context-filter'
+            ,emptyText: _('redirector.context')
+            ,listeners: {
+                'select': { fn: this.searchContext ,scope: this }
+                ,'change': { fn: this.searchContext ,scope: this }
+            }
+        },'-',{
             xtype: 'textfield'
             ,id: 'redirector-search-filter'
             ,emptyText: _('redirector.search...')
             ,listeners: {
-                'change': {fn:this.search,scope:this}
-                ,'render': {fn: function(cmp) {
+                'change': { fn: this.search ,scope: this }
+                ,'render': { fn: function(cmp) {
                     new Ext.KeyMap(cmp.getEl(), {
                         key: Ext.EventObject.ENTER
                         ,fn: function() {
@@ -47,11 +84,8 @@ Redi.grid.Redirects = function(config) {
                             return true; }
                         ,scope: cmp
                     });
-                },scope:this}
+                } ,scope: this }
             }
-        },{
-            text: _('redirector.redirect_create')
-            ,handler: { xtype: 'redirector-window-redirect-create' ,blankValues: true }
         }]
     });
     Redi.grid.Redirects.superclass.constructor.call(this,config)
@@ -59,9 +93,26 @@ Redi.grid.Redirects = function(config) {
 Ext.extend(Redi.grid.Redirects,MODx.grid.Grid,{
     search: function(tf,nv,ov) {
         var s = this.getStore();
-        s.baseParams.query = tf.getValue();
+            s.baseParams.query = tf.getValue();
         this.getBottomToolbar().changePage(1);
         this.refresh();
+    }
+    ,searchContext: function(tf,nv,ov) {
+        var s = this.getStore();
+            s.baseParams.context = tf.getValue();
+        this.getBottomToolbar().changePage(1);
+        this.refresh();
+    }
+    ,getMenu: function(g,ri) {
+		var m = [];
+        m.push({
+            text: _('redirector.redirect_update')
+            ,handler: this.updateRedirect
+        },'-',{
+            text: _('redirector.redirect_remove')
+            ,handler: this.removeRedirect
+        });
+        return m;
     }
     ,saveCheckbox: function(e, t){
         var rowData = false;
@@ -93,19 +144,20 @@ Ext.extend(Redi.grid.Redirects,MODx.grid.Grid,{
         });
     }
     ,updateRedirect: function(btn,e) {
-        if (!this.updateRedirectWindow) {
-            this.updateRedirectWindow = MODx.load({
-                xtype: 'redirector-window-redirect-update'
-                ,record: this.menu.record
-                ,listeners: {
-                    'success': {fn:this.refresh,scope:this}
-                }
-            });
-        }
-        this.updateRedirectWindow.setValues(this.menu.record);
-        this.updateRedirectWindow.show(e.target);
+        var w = MODx.load({
+			xtype: 'redirector-window-redirect-createupdate'
+			,record: this.menu.record
+            ,update: true
+			,listeners: {
+				'success': { fn: this.refresh, scope: this }
+				,'hide': { fn: function() { this.destroy(); }}
+			}
+		});
+		w.setValues(this.menu.record);
+		w.show(e.target, function() {
+			Ext.isSafari ? w.setPosition(null,30) : w.center();
+		}, this);
     }
-
     ,removeRedirect: function() {
         MODx.msg.confirm({
             title: _('redirector.redirect_remove')
@@ -120,71 +172,104 @@ Ext.extend(Redi.grid.Redirects,MODx.grid.Grid,{
             }
         });
     }
+    /** RENDERERS **/
+    ,renderPattern: function(v,md,rec,ri,ci,s,g) {
+        var r = s.getAt(ri).data;
+        if(!Ext.isEmpty(r.resource_id)) {
+            v += ' <i>(' + _('resource') + ': ' + r.resource_id + ' - ' + r.resource_ctx + ')</i>';
+        }
+        return v;
+    }
 });
 Ext.reg('redirector-grid-redirects',Redi.grid.Redirects);
 
 
-Redi.window.CreateRedirect = function(config) {
+Redi.window.CreateUpdateRedirect = function(config) {
     config = config || {};
+    this.ident = config.ident || Ext.id();
+
     Ext.applyIf(config,{
         title: _('redirector.redirect_create')
         ,url: Redi.config.connector_url
-        ,baseParams: {
-            action: 'mgr/redirect/create'
-        }
-        ,fields: [{
-            xtype: 'textfield'
-            ,fieldLabel: _('redirector.pattern')
-            ,name: 'pattern'
-            ,width: 300
-        },{
-            xtype: 'textfield'
-            ,fieldLabel: _('redirector.target')
-            ,name: 'target'
-            ,width: 300
-        },{
-            xtype: 'checkbox'
-            ,fieldLabel: _('redirector.active')
-            ,name: 'active'
-            ,inputValue: 1
-            ,checked: true
-        }]
-    });
-    Redi.window.CreateRedirect.superclass.constructor.call(this,config);
-};
-Ext.extend(Redi.window.CreateRedirect,MODx.Window);
-Ext.reg('redirector-window-redirect-create',Redi.window.CreateRedirect);
-
-
-Redi.window.UpdateRedirect = function(config) {
-    config = config || {};
-    Ext.applyIf(config,{
-        title: _('redirector.redirect_update')
-        ,url: Redi.config.connector_url
-        ,baseParams: {
-            action: 'mgr/redirect/update'
-        }
+        ,baseParams: { action: ((config.update) ? 'mgr/redirect/update' : 'mgr/redirect/create') }
+        ,modal: true
+        ,width: 750
         ,fields: [{
             xtype: 'hidden'
             ,name: 'id'
         },{
-            xtype: 'textfield'
-            ,fieldLabel: _('redirector.pattern')
-            ,name: 'pattern'
-            ,width: 300
-        },{
-            xtype: 'textfield'
-            ,fieldLabel: _('redirector.target')
-            ,name: 'target'
-            ,width: 300
-        },{
-            xtype: 'checkbox'
-            ,fieldLabel: _('redirector.active')
-            ,name: 'active'
-            ,inputValue: 1
+            layout: 'column'
+            ,border: false
+            ,defaults: { msgTarget: 'under' ,border: false }
+            ,items: [{
+                layout: 'form'
+                ,columnWidth: .5
+                ,defaults: { msgTarget: 'under' ,border: false }
+                ,items: [{
+                    xtype: 'textfield'
+                    ,fieldLabel: _('redirector.pattern')
+                    ,name: 'pattern'
+                    ,anchor: '100%'
+                    ,allowBlank: false
+                },{
+                    xtype: 'redirector-combo-contextlist'
+                    ,fieldLabel: _('redirector.context')
+                    ,name: 'context_key'
+                    ,anchor: '100%'
+                },{
+                    layout: 'column'
+                    ,border: false
+                    ,defaults: { msgTarget: 'under' ,border: false }
+                    ,items: [{
+                        layout: 'form'
+                        ,columnWidth: .6
+                        ,defaults: { msgTarget: 'under' ,border: false }
+                        ,items: [{
+                            xtype: 'textfield'
+                            ,id: 'redirector-createupdate-window-target-'+this.ident
+                            ,fieldLabel: _('redirector.target')
+                            ,name: 'target'
+                            ,anchor: '100%'
+                            ,allowBlank: false
+                        }]
+                    },{
+                        layout: 'form'
+                        ,columnWidth: .4
+                        ,defaults: { msgTarget: 'under' ,border: false }
+                        ,items: [{
+                            xtype: 'redirector-combo-resourcelist'
+                            ,fieldLabel: _('resource')
+                            ,anchor: '100%'
+                            ,listeners: {
+                                'select': {
+                                    fn: function(cb, e) {
+                                        var targetField = Ext.getCmp('redirector-createupdate-window-target-'+this.ident);
+                                            targetField.setValue('[[~' + cb.getValue() + ']]');
+                                    } ,scope: this
+                                }
+                            }
+                        }]
+                    }]
+                },{
+                    xtype: 'xcheckbox'
+                    ,hideLabel: true
+                    ,boxLabel: _('redirector.active')
+                    ,name: 'active'
+                    ,inputValue: 1
+                    ,checked: true
+                }]
+            },{
+                columnWidth: .5
+                ,defaults: { msgTarget: 'under' ,border: false }
+                ,items: [{
+                    html: Ext.util.Format.nl2br(_('redirector.regex_explain'))
+                    ,border: false
+                    ,bodyStyle: 'font-size: 0.9em; line-height: 15px;'
+                }]
+            }]
         }]
     });
-    Redi.window.UpdateRedirect.superclass.constructor.call(this,config);
+    Redi.window.CreateUpdateRedirect.superclass.constructor.call(this,config);
 };
-Ext.extend(Redi.window.UpdateRedirect,MODx.Window);
-Ext.reg('redirector-window-redirect-update',Redi.window.UpdateRedirect);
+Ext.extend(Redi.window.CreateUpdateRedirect,MODx.Window);
+Ext.reg('redirector-window-redirect-createupdate',Redi.window.CreateUpdateRedirect);

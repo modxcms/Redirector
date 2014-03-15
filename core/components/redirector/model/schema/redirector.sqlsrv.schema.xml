@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model package="redirector" baseClass="xPDOObject" platform="sqlsrv">
     <object class="modRedirect" table="redirects" extends="xPDOSimpleObject">
-        <field key="pattern" dbtype="nvarchar" precision="255" phptype="string" null="false" default="" index="unique" />
+        <field key="pattern" dbtype="nvarchar" precision="255" phptype="string" null="false" default="" index="index" indexgrp="pattern_context" />
         <field key="target" dbtype="nvarchar" precision="255" phptype="string" null="false" default="" index="index" />
+        <field key="context_key" dbtype="nvarchar" precision="255" phptype="string" null="true" default="NULL" index="index" indexgrp="pattern_context" />
 	    <field key="active" dbtype="bit" phptype="boolean" null="false" default="1" index="index" />
+
+        <index alias="pattern_context" name="pattern_context" primary="false" unique="true" type="BTREE">
+            <column key="pattern" length="100" collation="A" null="false" />
+            <column key="context_key" length="100" collation="A" null="false" />
+        </index>
+
+        <aggregate alias="PatternResource" class="modResource" local="pattern" foreign="uri" cardinality="one" owner="foreign" />
+        <aggregate alias="TargetResource" class="modResource" local="target" foreign="uri" cardinality="one" owner="foreign" />
+        <aggregate alias="Context" class="modContext" local="context_key" foreign="key" cardinality="one" owner="foreign" />
     </object>
 </model>
