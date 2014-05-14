@@ -295,32 +295,19 @@ Redi.window.CreateUpdateRedirect = function(config) {
                     ,name: 'context_key'
                     ,anchor: '100%'
                 },{
-                    layout: 'column'
-                    ,border: false
-                    ,defaults: { msgTarget: 'under' ,border: false }
-                    ,items: [{
-                        layout: 'form'
-                        ,columnWidth: .6
-                        ,defaults: { msgTarget: 'under' ,border: false }
-                        ,items: [{
-                            xtype: 'textfield'
-                            ,id: 'redirector-createupdate-window-target-'+this.ident
-                            ,fieldLabel: _('redirector.target')
-                            ,name: 'target'
-                            ,anchor: '100%'
-                            ,allowBlank: false
-                        }]
-                    },{
-                        layout: 'form'
-                        ,columnWidth: .4
-                        ,defaults: { msgTarget: 'under' ,border: false }
-                        ,items: [{
-                            xtype: 'redirector-combo-resourcelist'
-                            ,fieldLabel: _('resource')
-                            ,valueField: 'uri'
-                            ,fields: ['uri','pagetitle']
-                            ,anchor: '100%'
-                            ,listeners: {
+                    xtype: 'textfield'
+                    ,id: 'redirector-createupdate-window-target-'+this.ident
+                    ,fieldLabel: _('redirector.target')
+                    ,name: 'target'
+                    ,anchor: '100%'
+                    ,allowBlank: false     
+                },{
+                    xtype: 'redirector-combo-resourcelist'
+                    ,fieldLabel: _('resource')
+                    ,valueField: 'uri'
+                    ,fields: ['uri','pagetitle']
+                    ,anchor: '100%'
+                     ,listeners: {
                                 'select': {
                                     fn: function(cb, e) {
                                         var targetField = Ext.getCmp('redirector-createupdate-window-target-'+this.ident);
@@ -328,8 +315,7 @@ Redi.window.CreateUpdateRedirect = function(config) {
                                     } ,scope: this
                                 }
                             }
-                        }]
-                    }]
+                
                 },{
                     xtype: 'xcheckbox'
                     ,hideLabel: true
