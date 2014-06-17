@@ -19,6 +19,8 @@ switch($eventName) {
         }
 
         $search = ltrim($search,'/');
+        $search = rtrim($search,'/');
+        $search = addslashes($search);
         if(!empty($search)) {
 
             /** @var modRedirect $redirect */
@@ -31,11 +33,13 @@ switch($eventName) {
             // when not found, check a REGEX record..
             // need to separate this one because of some 'alias.html > target.html' vs. 'best-alias.html > best-target.html' issues...
             if(empty($redirect) || !is_object($redirect)) {
-                $redirect = $modx->getObject('modRedirect', array(
-                    "('".$search."' REGEXP `modRedirect`.`pattern` OR '".$search."' REGEXP CONCAT('^', `modRedirect`.`pattern`, '$'))",
-                    "(`modRedirect`.`context_key` = '".$modx->context->get('key')."' OR `modRedirect`.`context_key` IS NULL OR `modRedirect`.`context_key` = '')",
-                    'active' => true,
-                ));
+                $c = $modx->newQuery('modRedirect');
+                $c->where(
+                    "('".$search."' REGEXP `modRedirect`.`pattern` OR '".$search."' REGEXP CONCAT('^', `modRedirect`.`pattern`, '$'))" .
+                    " AND (`modRedirect`.`context_key` = '".$modx->context->get('key')."' OR `modRedirect`.`context_key` IS NULL OR `modRedirect`.`context_key` = '')" .
+                    ' AND `modRedirect`.`active` = 1'
+                );
+                $redirect = $modx->getObject('modRedirect', $c);
             }
 
             if(!empty($redirect) && is_object($redirect)) {
