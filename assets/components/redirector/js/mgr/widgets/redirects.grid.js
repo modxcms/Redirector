@@ -319,13 +319,20 @@ Redi.window.CreateUpdateRedirect = function(config) {
                             xtype: 'redirector-combo-resourcelist'
                             ,fieldLabel: _('resource')
                             ,valueField: 'uri'
-                            ,fields: ['uri','pagetitle']
+                            ,fields: ['uri', 'pagetitle', 'url', 'context_key']
                             ,anchor: '100%'
                             ,listeners: {
-                                'select': {
+                                select: {
                                     fn: function(cb, e) {
+                                        var ctx = this.fp.find('name', 'context_key')[0].getValue()
+                                            ,value = cb.getValue()
+                                            ,record = cb.findRecord('uri', value);
+                                        // Handle target in a different context
+                                        if (ctx && ctx != record.get('context_key')) {
+                                            value = record.get('url');
+                                        }
                                         var targetField = Ext.getCmp('redirector-createupdate-window-target-'+this.ident);
-                                            targetField.setValue(cb.getValue());
+                                            targetField.setValue(value);
                                     } ,scope: this
                                 }
                             }

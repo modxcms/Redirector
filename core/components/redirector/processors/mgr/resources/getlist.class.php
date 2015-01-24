@@ -21,6 +21,7 @@ class ResourcesGetListProcessor extends modObjectGetListProcessor {
 
     public function prepareRow(xPDOObject $object) {
         $arr = $object->toArray();
+        $arr['url'] = $this->modx->makeUrl($object->get('id'), $object->get('context_key'), '', 'full');
         $arr['pagetitle'] .= ' ('.$object->get('context_key').', '.$object->get('id').')';
 
         return $arr;
