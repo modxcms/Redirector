@@ -342,7 +342,7 @@ Redi.window.CreateUpdateRedirect = function(config) {
                             ,fieldLabel: _('redirector.target')
                             ,name: 'target'
                             ,anchor: '100%'
-                            ,allowBlank: false
+                            ,allowBlank: true
                         }]
                     },{
                         layout: 'form'
