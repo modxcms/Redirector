@@ -1,3 +1,3 @@
 # Redirector
 
-Redirector is currently maintained by [Bert Oost](https://github.com/bertoost).
+See official documentation for more details: https://docs.modx.com/extras/revo/redirector
