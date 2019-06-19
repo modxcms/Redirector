@@ -6,6 +6,10 @@
  *
  * @package redirector
  * @subpackage build
+ *
+ * @var mixed $object
+ * @var modX $modx
+ * @var array $options
  */
 
 if ($object->xpdo) {
