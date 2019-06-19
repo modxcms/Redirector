@@ -7,6 +7,10 @@ $xpdo_meta_map['modRedirect']= array (
   'version' => '1.0',
   'table' => 'redirects',
   'extends' => 'xPDOSimpleObject',
+  'tableMeta' => 
+  array (
+    'engine' => 'MyISAM',
+  ),
   'fields' => 
   array (
     'pattern' => '',
