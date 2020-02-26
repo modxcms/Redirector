@@ -1,5 +1,10 @@
 Changelog file for Redirector component.
 
+Redirector 2.0.9
+====================================
+- Fixed: Removed modAction suppport
+- Changed: Removed standard build script (GPM build script is available)
+
 Redirector 2.0.8
 ====================================
 - Fixed: BlindSQL Injection
