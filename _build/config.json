@@ -3,7 +3,7 @@
   "lowCaseName": "redirector",
   "description": "Handles your site redirects.",
   "author": "Shaun McCormick",
-  "version": "2.0.9-rc1",
+  "version": "2.0.9",
   "package": {
     "menus": [
       {
@@ -41,8 +41,7 @@
   "build": {
     "resolver": {
       "after": [
-        "resolve.tables.php",
-        "resolve.dbchanges.php"
+        "resolve.cleanup.php"
       ]
     }
   }
