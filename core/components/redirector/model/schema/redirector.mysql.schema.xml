@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model package="redirector" baseClass="xPDOObject" platform="mysql" defaultEngine="MyISAM" version="1.0">
+<model package="redirector" baseClass="xPDOObject" platform="mysql" defaultEngine="InnoDB" version="1.0">
     <object class="modRedirect" table="redirects" extends="xPDOSimpleObject">
         <field key="pattern" dbtype="varchar" precision="255" phptype="string" null="false" default="" index="index" />
         <field key="target" dbtype="varchar" precision="255" phptype="string" null="false" default="" index="index" />
