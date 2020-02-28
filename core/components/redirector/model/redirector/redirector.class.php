@@ -29,6 +29,9 @@ class Redirector {
         ),$config);
 
         $this->modx->addPackage('redirector',$this->config['modelPath']);
+
+        $lexicon = $this->modx->getService('lexicon', 'modLexicon');
+        $lexicon->load('redirector:default');
     }
 
     /**
